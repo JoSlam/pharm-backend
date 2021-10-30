@@ -4,3 +4,4 @@ from .payment import *
 from .prescription import *
 from .product import *
 from .productOrder import *
+from .enums import *

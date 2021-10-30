@@ -1,16 +1,16 @@
 from flask import Flask
-from flask_jwt import JWT
 from flask import session
-from datetime import timedelta 
+from datetime import timedelta
 from flask_cors import CORS
-import pyrebase
+from flask_jwt import JWT
+from flask_jwt_extended import JWTManager
 
+
+import pyrebase
+from App.modules.auth_module import authenticateUser, identityHandler
 
 from App.models.database import *
 
-from App.models.user import *
-
-from App.controllers.auth import *
 
 from App import CONFIG
 
@@ -23,7 +23,7 @@ from App.views import (
     customer_views
 )
 
-#Google Firebase configuration file.
+# Google Firebase configuration file.
 config = {
     "apiKey": "",
     "authDomain": "",
@@ -33,50 +33,54 @@ config = {
     "messagingSenderId": "",
     "appId": "",
     "measurementId": ""
-  }
-  
+}
+
 
 firebase = pyrebase.initialize_app(config)
 
 storage = firebase.storage()
 
-#to store image
-#storage.child("image-url-on-firebase").put("image-name.jpg") (png whatever file extension")
+# to store image
+# storage.child("image-url-on-firebase").put("image-name.jpg") (png whatever file extension")
 
-#to download image
-#storage.child("image-url-on-firebase").download("image-name.jpg")
+# to download image
+# storage.child("image-url-on-firebase").download("image-name.jpg")
+
 
 def create_app():
     app = Flask(__name__, static_url_path='')
     cors = CORS(app, resources={r"/*": {"origins": "*"}})
- 
+
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.config['PREFERRED_URL_SCHEME'] = 'https'
     app.config['JWT_AUTH_USERNAME_KEY'] = 'email'
     app.config['UPLOADED_PHOTOS_DEST'] = 'uploads',
 
-    app.config['SQLALCHEMY_DATABASE_URI'] =  CONFIG["SQLALCHEMY_DATABASE_URI"]
+    app.config['SQLALCHEMY_DATABASE_URI'] = CONFIG["SQLALCHEMY_DATABASE_URI"]
     app.config['SECRET_KEY'] = CONFIG['SECRET_KEY']
-    app.config['JWT_EXPIRATION_DELTA'] = timedelta(days=CONFIG["JWT_EXPIRATION_DELTA"])
+    app.config['JWT_EXPIRATION_DELTA'] = timedelta(
+        days=CONFIG["JWT_EXPIRATION_DELTA"])
     app.config['DEBUG'] = CONFIG["DEBUG"]
     #photos = UploadSet('photos', TEXT + DOCUMENTS + IMAGES)
     #configure_uploads(app, photos)
     db.init_app(app)
+    JWTManager(app)
     return app
+
 
 app = create_app()
 
 app.app_context().push()
 
+app.register_blueprint(auth_views)
 app.register_blueprint(api_views)
 app.register_blueprint(product_views)
-app.register_blueprint(auth_views)
 app.register_blueprint(search_view)
 app.register_blueprint(order_views)
 app.register_blueprint(customer_views)
 
-jwt = JWT(app, authenticate, identity) 
+jwt = JWT(app, authenticateUser, identityHandler)
 
 if __name__ == '__main__':
     print('Application running in '+CONFIG['ENV']+' mode')

@@ -18,10 +18,10 @@ from App.controllers import (
 
 # get all orders
 @order_views.route('/orders', methods=["GET"])
-@jwt_required()
 def display_orders():
     orderList = get_orders()
     return jsonify(orderList)
+
 
 # get user orders
 @order_views.route('/user-orders', methods=["GET"])
@@ -29,6 +29,7 @@ def display_orders():
 def display_user_orders():
     orderList = get_orders_by_user(current_identity.email)
     return jsonify(orderList)
+
 
 # create order
 @order_views.route('/create-order', methods=["POST"])

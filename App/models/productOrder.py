@@ -1,13 +1,5 @@
 from .database import db
-import enum
-
-# Enumerable https://docs.sqlalchemy.org/en/14/core/type_basics.html#sqlalchemy.types.Enum
-class OrderStatus(enum.Enum):
-    INCART = "In Cart"
-    PLACED = "Placed"
-    CONFIRMED = "Confirmed"
-    COMPLETED = "Completed"
-
+from App.models.enums import OrderStatus
 # a product can be in multiple orders and an order can contain multiple
 #products - MANY TO MANY relationship - Association Model
 # Reference - https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#association-object 
