@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt import jwt_required
+from flask_jwt_extended import jwt_required
 
 customer_views = Blueprint('customer_views', __name__, template_folder='../templates')
 

@@ -1,6 +1,6 @@
 from flask import request,jsonify, Blueprint
 import json
-from flask_jwt import jwt_required
+from flask_jwt_extended import jwt_required
 
 search_view = Blueprint('search_view', __name__, template_folder='../templates')
 

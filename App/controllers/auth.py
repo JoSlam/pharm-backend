@@ -1,15 +1,19 @@
-from App.models import User
-from App.modules.auth_module import verifyPassword
-from flask_jwt_extended import (jwt_required, get_jwt_identity)
 from flask import (Blueprint, request)
+from flask.json import jsonify
+from flask_jwt_extended import (jwt_required, get_jwt_identity)
 
+
+from App.modules.auth_module import (verifyPassword, getUserAccessToken)
+from App.models import User
+from App.models.enums import UserRole
 
 from App.controllers import (
     create_user,
     get_user,
 )
 
-auth_bp = Blueprint('auth_bp', __name__)
+
+auth_bp = Blueprint('auth_bp', __name__, template_folder='../templates')
 
 
 # Login endpoint
@@ -30,7 +34,7 @@ def login():
 
         if verifyPassword(user, password):
             access_token = getUserAccessToken(email)
-            return {"access_token": access_token}, 200
+            return jsonify({"access_token": access_token}), 200
         else:
             return 'Invalid login credentials', 400
     except AttributeError:
@@ -64,14 +68,17 @@ def signup():
                             password, allergies, role=UserRole.USER)
 
         access_token = getUserAccessToken(email)
-        return {"access_token": access_token}, 200
+        return jsonify({"access_token": access_token}), 200
+
     except AttributeError:
         return 'Missing data', 400
 
 
 # Authentication test endpoint
-@auth_bp.route('/user')
+@auth_bp.route('/user', methods=["GET"])
 @jwt_required()
 def get_user_details():
-    user = get_jwt_identity()
+    identity = get_jwt_identity()
+    email = identity['email']
+    user = User.query.filter_by(email=email).first()
     return jsonify(user.toDict())

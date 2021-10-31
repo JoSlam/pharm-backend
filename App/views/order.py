@@ -1,5 +1,5 @@
-from flask import Blueprint, redirect, render_template, request, abort, jsonify
-from flask_jwt import jwt_required, current_identity
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
 
 order_views = Blueprint('order_views', __name__, template_folder='../templates')
@@ -27,7 +27,8 @@ def display_orders():
 @order_views.route('/user-orders', methods=["GET"])
 @jwt_required()
 def display_user_orders():
-    orderList = get_orders_by_user(current_identity.email)
+    user = get_jwt_identity()
+    orderList = get_orders_by_user(user)
     return jsonify(orderList)
 
 
@@ -38,7 +39,7 @@ def create_order():
     item_count = request.json.get('item_count')
     order_total = request.json.get('order_total')
     status = request.json.get('status')
-    customer = get_user(current_identity.email) #parent
+    customer = get_jwt_identity() #parent
     newOrder = create_cust_order(customer, item_count, order_total, status) #association
 
     cart = request.json.get('cart') #call get product by slug for list of products

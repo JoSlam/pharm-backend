@@ -2,22 +2,22 @@ from flask import Flask
 from flask import session
 from datetime import timedelta
 from flask_cors import CORS
-from flask_jwt import JWT
 from flask_jwt_extended import JWTManager
 
 
 import pyrebase
-from App.modules.auth_module import authenticateUser, identityHandler
 
 from App.models.database import *
 
 
 from App import CONFIG
 
+
+from App.controllers.auth import auth_bp
+
 from App.views import (
     api_views,
     product_views,
-    auth_views,
     search_view,
     order_views,
     customer_views
@@ -59,8 +59,8 @@ def create_app():
 
     app.config['SQLALCHEMY_DATABASE_URI'] = CONFIG["SQLALCHEMY_DATABASE_URI"]
     app.config['SECRET_KEY'] = CONFIG['SECRET_KEY']
-    app.config['JWT_EXPIRATION_DELTA'] = timedelta(
-        days=CONFIG["JWT_EXPIRATION_DELTA"])
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(
+        days=CONFIG["JWT_ACCESS_TOKEN_EXPIRES"])
     app.config['DEBUG'] = CONFIG["DEBUG"]
     #photos = UploadSet('photos', TEXT + DOCUMENTS + IMAGES)
     #configure_uploads(app, photos)
@@ -73,15 +73,15 @@ app = create_app()
 
 app.app_context().push()
 
-app.register_blueprint(auth_views)
+app.register_blueprint(auth_bp)
 app.register_blueprint(api_views)
 app.register_blueprint(product_views)
 app.register_blueprint(search_view)
 app.register_blueprint(order_views)
 app.register_blueprint(customer_views)
 
-jwt = JWT(app, authenticateUser, identityHandler)
+# jwt = JWT(app, authenticateUser, identityHandler)
 
 if __name__ == '__main__':
     print('Application running in '+CONFIG['ENV']+' mode')
-    app.run(host='0.0.0.0', port=8080, debug=CONFIG['DEBUG'])
+    app.run(host='localhost', port=8080, debug=CONFIG['DEBUG'])

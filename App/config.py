@@ -6,7 +6,7 @@ environment = os.environ.get('ENV')
 if environment == 'production' or environment == 'staging':
     CONFIG = {
         "DEBUG" : False,
-        "JWT_EXPIRATION_DELTA": 7,
+        "JWT_ACCESS_TOKEN_EXPIRES": 7,
         "SECRET_KEY" : os.environ.get('SECRET_KEY'),
         "SQLALCHEMY_DATABASE_URI" : os.environ.get('SQLALCHEMY_DATABASE_URI'),
         "ENV":'production'

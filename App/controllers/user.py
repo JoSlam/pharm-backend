@@ -5,7 +5,7 @@ from App.modules.auth_module import setUserPassword
 # create USER
 def create_user(firstname, lastname, email, password, allergy, role):
     newUser = User(first_name=firstname, last_name=lastname, email=email, allergies = allergy, role = role)
-    setUserPassword(user, password)
+    setUserPassword(newUser, password)
     db.session.add(newUser)
     db.session.commit()
     print("User successfully created")
