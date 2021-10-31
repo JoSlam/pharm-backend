@@ -1,3 +1,4 @@
+from App.modules.serialization_module import serializeList
 from .database import db
 from datetime import datetime
 
@@ -24,5 +25,6 @@ class Order(db.Model):
             "order_total": round(self.order_total,2),
             "date_placed": self.date_placed.strftime("%a, %d %b, %Y"),
             "status": self.pickup_status,
-            "products": [OrderProduct.product.toDict() for OrderProduct in self.products]
+            # TODO: Test
+            "products": serializeList(map(lambda productOrder: productOrder.product, self.products))
         }

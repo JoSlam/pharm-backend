@@ -5,7 +5,6 @@ import json
 order_views = Blueprint('order_views', __name__, template_folder='../templates')
 
 from App.controllers import (
-    get_user,
     create_cust_order,
     get_orders,
     get_orders_by_user,

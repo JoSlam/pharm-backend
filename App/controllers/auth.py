@@ -74,6 +74,7 @@ def signup():
         return 'Missing data', 400
 
 
+# Test endpoint
 # Authentication test endpoint
 @auth_bp.route('/user', methods=["GET"])
 @jwt_required()
