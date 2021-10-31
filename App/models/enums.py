@@ -1,13 +1,16 @@
 from enum import Enum
 
 # Enumerable https://docs.sqlalchemy.org/en/14/core/type_basics.html#sqlalchemy.types.Enum
+class OrderStatus(int, Enum):
+    INCART = 1
+    PLACED = 2
+    CONFIRMED = 3
+    COMPLETED = 4
 
-
-class OrderStatus(str, Enum):
-    INCART = "In Cart"
-    PLACED = "Placed"
-    CONFIRMED = "Confirmed"
-    COMPLETED = "Completed"
+class PickupStatus(int, Enum):
+    NOT_READY = 1
+    READY = 2
+    COMPLETED = 3
 
 
 # These are the roles for the users

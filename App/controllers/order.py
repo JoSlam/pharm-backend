@@ -1,20 +1,142 @@
-from App.models import ( Order )
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import (jwt_required, get_jwt_identity)
+from App.controllers.product import get_product_by_slug
+from App.controllers.productOrder import create_order_product
+from App.controllers.user import get_user_by_email
+
+from App.models import (Order)
+from App.models.CartItem import CartItem
 from App.models.database import db
+from App.models.enums import OrderStatus
+from App.models.productOrder import ProductOrder
 from App.modules.serialization_module import serializeList
 
-#create order for customer
-def create_cust_order(customer, item_count, order_total, status):
-    newOrder = Order(user_id = customer.id, item_count = item_count, order_total = order_total, pickup_status = status)
-    print("Successfully Created")
-    db.session.add(newOrder)
-    db.session.commit()
-    return newOrder
+order_bp = Blueprint('order_views', __name__,
+                     template_folder='../templates')
 
-def add_order_products(Order, OrderProductList):
-    db.session.add(Order)
-    for OrderProduct in OrderProductList:
-        Order.products.append(OrderProduct)
+
+@order_bp.route('/progress-order/<int: order_id>', methods=["POST"])
+@jwt_required
+def progress_order(order_id):
+    order_status = request.json.get("order_status")
+    update_order(order_id, order_status)
+
+    # Accept order id through parameters
+    # Send OrderStatus in the update
+    # Figure out what stage to progress to based on the status
+    # Update the order
+    # Put update logic in a separate method
+    return "boop"
+
+
+# Put order update logic in a factory
+def update_order(order_id, order_status):
+    order = get_order_by_id(order_id)
+    order.order_status = order_status
+
+
+# get all orders
+@order_bp.route('/orders', methods=["GET"])
+@jwt_required()
+def display_orders():
+    orderList = get_orders()
+    return jsonify(orderList)
+
+
+# get user orders
+@order_bp.route('/user-orders', methods=["GET"])
+@jwt_required()
+def display_user_orders():
+    identity = get_jwt_identity()
+    userEmail = identity["email"]
+    orderList = get_orders_by_user(userEmail)
+    return jsonify(orderList)
+
+
+# create order
+@order_bp.route('/create-order', methods=["POST"])
+@jwt_required()
+def create_order():
+    identity = get_jwt_identity()
+
+    cart_items = request.json.get('cart')
+
+    newOrder = create_customer_order(
+        identity["email"], OrderStatus.INCART, cart_items)
+
+    # call get product by slug for list of products
+    orderProductList = []
+    for product in cart:
+        slug = product["slug"]
+        # find product by slug and add to list of products
+        productObj = get_product_by_slug(slug)
+        newOrderProduct = create_order_product(newOrder, productObj)
+        orderProductList.append(newOrderProduct)
+
+    add_products_to_order(newOrder, orderProductList)
+    return jsonify(newOrder.toDict())
+
+# get specific order by ID
+@order_bp.route('/order', methods=["GET"])
+def get_order():
+    order_id = request.args.get("id")
+    order = get_order_by_id(order_id)
+    return jsonify(order.toDict())
+
+
+# update order status endpoint
+#TODO: Remove
+# @order_bp.route('/update-order', methods=["PUT"])
+# @jwt_required()
+# def update_order():
+#     order_id = request.json.get("id")
+#     status = request.json.get("status")
+#     order = update_order_by_id(order_id, status)
+#     return jsonify(order.toDict())
+
+
+# create new customer order
+def create_customer_order(user_email, order_status, pickup_status, cart_items):
+    user = get_user_by_email(user_email)
+    new_order = Order(user_id=user.id, order_status=order_status,
+                     pickup_status=pickup_status)
+
+    # Add order object to DB
+    db.session.add(new_order)
     db.session.commit()
+    print(f"Created new order for user: {user_email}")
+
+    product_orders = create_product_orders(new_order, cart_items)
+
+    # Add product orders to the order
+    add_products_to_order(new_order, product_orders)
+    return new_order
+
+
+def create_product_orders(new_order, cart_items):
+    # Create product orders
+    product_orders = []
+    for item in cart_items:
+        product = get_product_by_slug(item["product_slug"])
+        price = item["current_price"]
+        quantity = item["quantity"]
+
+        new_product_order = ProductOrder(
+            order_id=new_order.id, product_id=product.id, quantity=quantity, current_price=price)
+        print(f"Created product order for: {product.product_name} order: {new_order.id}")
+        db.session.add(new_product_order)
+        product_orders.append(new_product_order)
+    
+    # Commit all product orders to the DB
+    db.session.commit()
+    return product_orders
+
+
+def add_products_to_order(order, productOrders):
+    for productOrder in productOrders:
+        order.products.append(productOrder)
+    db.session.add(order)
+
 
 # get list of ALL orders
 def get_orders():
@@ -22,28 +144,29 @@ def get_orders():
     orders = Order.query.all()
     return serializeList(orders)
 
-# get order information - used in invoice part of the app.
+
+# get order information by its id
 def get_order_by_id(order_id):
-    print("getting order")
-    order = Order.query.filter(Order.id == order_id).first() 
-    return order
+    return Order.query.filter_by(id=order_id).first()
+
 
 # get all orders belonging to user - used in profile dashboard to display
 # user orders
 def get_orders_by_user(email):
     print("getting user's orders")
-    orders = Order.query.filter(Order.user.has(email = email)).all()
+    orders = Order.query.filter(Order.user.has(email=email)).all()
     return serializeList(orders)
 
-# search through orders - used by admin for - manage orders as 
+
+# search through orders - used by admin for - manage orders as
 # this contains a search through ALL orders
 def get_orders_by_term(term):
     orders = Order.query.filter(
         Order.id.contains(term)
         | Order.pickup_status.contains(term)
-        | Order.user.has(email = term)
-        | Order.user.has(first_name = term)
-        | Order.user.has(last_name = term)
+        | Order.user.has(email=term)
+        | Order.user.has(first_name=term)
+        | Order.user.has(last_name=term)
         | Order.order_total.contains(term)
         | Order.date_placed.contains(term)
     )

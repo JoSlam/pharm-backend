@@ -17,6 +17,13 @@ class Product(db.Model):
     def setPrice(self, price):
         self.unit_retail_price = price
 
+
+    # The product slug should be unique
+    # As long as each product's name is unique
+    @property
+    def slug(self):
+        return self.product_name.lower().replace(' ', '-')
+
     def toDict(self):
         return {
             "code": self.code,
@@ -29,6 +36,6 @@ class Product(db.Model):
             "unit_retail_price": round(self.unit_retail_price,2),
             "total_retail_price": round(self.total_retail_price,2),
             "image" : self.image,
-            "slug" : self.product_name.lower().replace(' ', '-')
+            "slug" : self.slug
             # uncomment for all orders containing the product "orders": [OrderProduct.order.toDict() for OrderProduct in self.orders]
         }

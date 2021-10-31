@@ -14,7 +14,7 @@ def create_user(firstname, lastname, email, password, allergy, role):
     return newUser
 
 # get user by email
-def get_user(email):
+def get_user_by_email(email):
     print("Fetching user with email {0}".format(email))
     user = User.query.filter_by(email=email).first()
     return user

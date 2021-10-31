@@ -9,7 +9,7 @@ from App.models.enums import UserRole
 
 from App.controllers import (
     create_user,
-    get_user,
+    get_user_by_email,
 )
 
 
@@ -59,7 +59,7 @@ def signup():
             return 'Missing password', 400
 
         # if a user is found, abort
-        if get_user(email) is not None:
+        if get_user_by_email(email) is not None:
             return 'User already exists', 403
 
         print('Creating new user with email {0}'.format(email))

@@ -14,12 +14,12 @@ from App import CONFIG
 
 
 from App.controllers.auth import auth_bp
+from App.controllers.order import order_bp
 
 from App.views import (
     api_views,
     product_views,
     search_view,
-    order_views,
     customer_views
 )
 
@@ -74,10 +74,10 @@ app = create_app()
 app.app_context().push()
 
 app.register_blueprint(auth_bp)
+app.register_blueprint(order_bp)
 app.register_blueprint(api_views)
 app.register_blueprint(product_views)
 app.register_blueprint(search_view)
-app.register_blueprint(order_views)
 app.register_blueprint(customer_views)
 
 # jwt = JWT(app, authenticateUser, identityHandler)

@@ -1,13 +1,11 @@
-from flask import redirect, render_template, request, session, url_for
+from flask import request
 
+from App import parse
 from App.models import Product
 from App.models.database import db
-from App import parse
 from App.modules.serialization_module import serializeList
 
 # creates a new product for /create-product endpoint
-
-
 def create_product(code, name, category, supplier_price, supplier, qoh, stock, unit_price, total, image=None):
     newProd = Product(code=code, product_name=name, category=category, supplier_cost_price=supplier_price,
                       supplier=supplier, QoH=qoh, stock_unit=stock, unit_retail_price=unit_price, total_retail_price=total)
@@ -16,9 +14,8 @@ def create_product(code, name, category, supplier_price, supplier, qoh, stock, u
     #print("Successfully added")
     return newProd
 
+
 # calls the parse.py view method to parse the given excel products file
-
-
 def parse_excel():
     print('Product controller parse excel')
     prodList = parse.parse()
@@ -40,8 +37,6 @@ def parse_excel():
 
 # gets 20 products (pagination) per page
 ROWS_PER_PAGE = 20
-
-
 def get_products_page(page):
     print('getting {0} products'.format(ROWS_PER_PAGE))
     page = request.args.get('page', page, type=int)
@@ -75,7 +70,7 @@ def get_product_categories():
 
 # get all products from DB
 def get_products():
-    print('get_products')
+    print('Fetching all products')
     products = Product.query.all()
     return serializeList(products)
 
@@ -100,21 +95,19 @@ def get_products_by_term(term):
 
 
 # get a particular product by its URL-Friendly slug
-def get_product_by_slug(p_slug):
-    print("getting product")
-    p_name = p_slug.upper().replace('-', ' ')
-    # if this returns a user, then the email already exists in database
-    product = Product.query.filter(Product.product_name == p_name).first()
+def get_product_by_slug(slug):
+    print(f"Fetching product with slug {slug}")
+    product = Product.query.filter_by(slug=slug).first()
     return product
 
 # delete a particular product by its URL-Friendly slug
-def delete_product_by_slug(p_slug):
-    print("deleting product")
-    p_name = p_slug.upper().replace('-', ' ')
-    # if this returns a user, then the email already exists in database
-    product = Product.query.filter(Product.product_name == p_name).first()
+def delete_product_by_slug(slug):
+    product = get_product_by_slug(slug)
+
+    print(f"Deleting product with slug {slug}")
     if product:
         if product.orders:
+            print("Cannot delete product with existing orders")
             return False
 
         db.session.delete(product)
