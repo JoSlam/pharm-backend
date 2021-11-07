@@ -1,6 +1,6 @@
+from re import match
 from .database import db
 from functools import reduce
-from datetime import datetime
 
 from App.models.enums import OrderStatus, PickupStatus
 from App.modules.serialization_module import serializeList
@@ -27,6 +27,22 @@ class Order(db.Model):
 
     def get_invoice():
         pass
+
+
+    # TODO: move to somewhere else
+    # def notify(self, status: OrderStatus):
+    #     #current order status
+    #     if self.order_status == OrderStatus.INCART:
+    #         if status == OrderStatus.CONFIRMED:
+    #             # Iterate product orders
+    #             # Decrement all product quantities by product order quantity
+    #             for item in self.products:
+    #                 item.product.QoH -= item.quantity
+    #             db.session.add_all(self.products)
+    #             db.session.commit()       
+
+
+
 
     def toDict(self):
         return{

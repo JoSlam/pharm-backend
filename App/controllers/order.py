@@ -34,6 +34,8 @@ def update_order(order_id, order_status):
     order = get_order_by_id(order_id)
     order.order_status = order_status
 
+    # Do other order update things based on status
+
 
 # get all orders
 @order_bp.route('/orders', methods=["GET"])
@@ -66,7 +68,7 @@ def create_order():
 
     # call get product by slug for list of products
     orderProductList = []
-    for product in cart:
+    for product in cart_items:
         slug = product["slug"]
         # find product by slug and add to list of products
         productObj = get_product_by_slug(slug)
