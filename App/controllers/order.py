@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
+from App.modules.order_updater_factory import GetOrderUpdater
 from flask_jwt_extended import (jwt_required, get_jwt_identity)
 from App.controllers.product import get_product_by_slug
 from App.controllers.productOrder import create_order_product
 from App.controllers.user import get_user_by_email
 
 from App.models import (Order)
-from App.models.CartItem import CartItem
 from App.models.database import db
 from App.models.enums import OrderStatus
 from App.models.productOrder import ProductOrder
@@ -18,23 +18,16 @@ order_bp = Blueprint('order_views', __name__,
 @order_bp.route('/progress-order/<int: order_id>', methods=["POST"])
 @jwt_required
 def progress_order(order_id):
-    order_status = request.json.get("order_status")
-    update_order(order_id, order_status)
+    try:
+        # TODO: Test
+        order = get_order_by_id(order_id)
+        order_status = request.json.get("order_status")
+        order_updater = GetOrderUpdater(order_status, request)
 
-    # Accept order id through parameters
-    # Send OrderStatus in the update
-    # Figure out what stage to progress to based on the status
-    # Update the order
-    # Put update logic in a separate method
-    return "boop"
-
-
-# Put order update logic in a factory
-def update_order(order_id, order_status):
-    order = get_order_by_id(order_id)
-    order.order_status = order_status
-
-    # Do other order update things based on status
+        order_updater.update(order)
+        return "Order updated", 200
+    except Exception:
+        return f"Unable to update order {order_id}", 500
 
 
 # get all orders
@@ -60,23 +53,12 @@ def display_user_orders():
 @jwt_required()
 def create_order():
     identity = get_jwt_identity()
-
     cart_items = request.json.get('cart')
 
-    newOrder = create_customer_order(
-        identity["email"], OrderStatus.INCART, cart_items)
+    newOrder = create_customer_order(identity["email"], OrderStatus.CONFIRMED, cart_items)
 
-    # call get product by slug for list of products
-    orderProductList = []
-    for product in cart_items:
-        slug = product["slug"]
-        # find product by slug and add to list of products
-        productObj = get_product_by_slug(slug)
-        newOrderProduct = create_order_product(newOrder, productObj)
-        orderProductList.append(newOrderProduct)
-
-    add_products_to_order(newOrder, orderProductList)
     return jsonify(newOrder.toDict())
+
 
 # get specific order by ID
 @order_bp.route('/order', methods=["GET"])
@@ -86,22 +68,12 @@ def get_order():
     return jsonify(order.toDict())
 
 
-# update order status endpoint
-#TODO: Remove
-# @order_bp.route('/update-order', methods=["PUT"])
-# @jwt_required()
-# def update_order():
-#     order_id = request.json.get("id")
-#     status = request.json.get("status")
-#     order = update_order_by_id(order_id, status)
-#     return jsonify(order.toDict())
-
 
 # create new customer order
 def create_customer_order(user_email, order_status, pickup_status, cart_items):
     user = get_user_by_email(user_email)
     new_order = Order(user_id=user.id, order_status=order_status,
-                     pickup_status=pickup_status)
+                      pickup_status=pickup_status)
 
     # Add order object to DB
     db.session.add(new_order)
@@ -125,10 +97,11 @@ def create_product_orders(new_order, cart_items):
 
         new_product_order = ProductOrder(
             order_id=new_order.id, product_id=product.id, quantity=quantity, current_price=price)
-        print(f"Created product order for: {product.product_name} order: {new_order.id}")
+        print(
+            f"Created product order for: {product.product_name} order: {new_order.id}")
         db.session.add(new_product_order)
         product_orders.append(new_product_order)
-    
+
     # Commit all product orders to the DB
     db.session.commit()
     return product_orders

@@ -1,8 +1,8 @@
-from re import match
 from .database import db
 from functools import reduce
+from datetime import datetime
 
-from App.models.enums import OrderStatus, PickupStatus
+from App.models.enums import OrderStatus
 from App.modules.serialization_module import serializeList
 
 
@@ -10,10 +10,9 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User", back_populates="orders")
-    date_placed = db.Column(db.DateTime)
-    order_status = db.Column(db.Enum(OrderStatus), default=OrderStatus.INCART)
-    pickup_status = db.Column(db.Enum(PickupStatus),
-                              default=PickupStatus.NOT_READY)
+    date_placed = db.Column(db.DateTime, default=datetime.now)
+    date_completed = db.Column(db.DateTime)
+    order_status = db.Column(db.Enum(OrderStatus), default=OrderStatus.CONFIRMED)
     products = db.relationship(
         "ProductOrder", back_populates="order",  cascade="all,delete")
 
@@ -32,7 +31,7 @@ class Order(db.Model):
     # TODO: move to somewhere else
     # def notify(self, status: OrderStatus):
     #     #current order status
-    #     if self.order_status == OrderStatus.INCART:
+    #     if self.order_status == OrderStatus.Placed:
     #         if status == OrderStatus.CONFIRMED:
     #             # Iterate product orders
     #             # Decrement all product quantities by product order quantity

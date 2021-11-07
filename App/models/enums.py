@@ -2,15 +2,10 @@ from enum import Enum
 
 # Enumerable https://docs.sqlalchemy.org/en/14/core/type_basics.html#sqlalchemy.types.Enum
 class OrderStatus(int, Enum):
-    INCART = 1
-    PLACED = 2
-    CONFIRMED = 3
+    CONFIRMED = 1
+    PICKING = 2
+    AWAITING_PICKUP = 3
     COMPLETED = 4
-
-class PickupStatus(int, Enum):
-    NOT_READY = 1
-    READY = 2
-    COMPLETED = 3
 
 
 # These are the roles for the users
@@ -19,3 +14,8 @@ class PickupStatus(int, Enum):
 class UserRole(int, Enum):
     USER = 1,
     ADMIN = 2
+
+class PaymentType(int, Enum):
+    CASH = 1,
+    LINX = 2,
+    CREDIT_CARD = 3
