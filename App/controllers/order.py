@@ -10,7 +10,7 @@ from App.models.enums import OrderStatus
 from App.models.productOrder import ProductOrder
 
 from App.modules.serialization_module import serializeList
-from App.modules.order_updater_factory import GetOrderUpdater
+from App.modules.OrderUpdater.order_updater_factory import GetOrderUpdater
 
 
 order_bp = Blueprint('order_views', __name__,
@@ -55,7 +55,6 @@ def create_order():
 @jwt_required()
 def progress_order():
     try:
-        # TODO: Test
         order_id = request.json.get('order_id')
         order_status = request.json.get("order_status")
 
