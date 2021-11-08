@@ -1,6 +1,9 @@
 from enum import Enum
 
-# Enumerable https://docs.sqlalchemy.org/en/14/core/type_basics.html#sqlalchemy.types.Enum
+# Order statuses based on a simple commerce setup
+# App frontend handles cart => Products, quantities, current item prices
+# App backend handles order status change logic 
+# Order stages -> Cart => Confirmed => Picking by staff => Awaiting pickup => Completed & Paid
 class OrderStatus(int, Enum):
     CONFIRMED = 1
     PICKING = 2
@@ -15,6 +18,10 @@ class UserRole(int, Enum):
     USER = 1,
     ADMIN = 2
 
+
+# This enum controls the type of payments made by individuals
+# 3 categories of payment are maintained currently
+# Extending this enum allows tracking of new payment methods when added
 class PaymentType(int, Enum):
     CASH = 1,
     LINX = 2,

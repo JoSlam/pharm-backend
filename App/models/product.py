@@ -13,6 +13,7 @@ class Product(db.Model):
     total_retail_price = db.Column(db.Float(decimal_return_scale=2), nullable=False)
     image = db.Column(db.String(300), nullable=True)
     orders = db.relationship("ProductOrder", back_populates="product")
+    slug = db.Column()
     
     def setPrice(self, price):
         self.unit_retail_price = price
@@ -22,7 +23,7 @@ class Product(db.Model):
     # As long as each product's name is unique
     @property
     def slug(self):
-        return self.product_name.lower().replace(' ', '-')
+        return self.product_name.replace(' ', '-')
 
     def toDict(self):
         return {

@@ -5,7 +5,7 @@ from App.modules.serialization_module import serializeList
 
 # gets customers by filtering users based on their roles
 def get_customers():
-    print('get all customers')
+    print('Fetching all customers')
     customers = User.query.filter_by(role=UserRole.USER)
     return serializeList(customers)
     

@@ -97,7 +97,8 @@ def get_products_by_term(term):
 # get a particular product by its URL-Friendly slug
 def get_product_by_slug(slug):
     print(f"Fetching product with slug {slug}")
-    product = Product.query.filter_by(slug=slug).first()
+    p_name = slug.replace("-", " ")
+    product = Product.query.filter(Product.product_name==p_name).first()
     return product
 
 # delete a particular product by its URL-Friendly slug

@@ -18,28 +18,14 @@ class Order(db.Model):
 
     @property
     def order_total(self):
-        return reduce(lambda x, y: x.currentPrice + y.currentPrice, self.products, 0)
+        return reduce(lambda x, y: x + y.current_price * y.quantity, self.products, 0.0)
 
     @property
     def item_count(self):
-        return len(self.products)
+        return reduce(lambda x, y: x + y.quantity, self.products, 0)
 
     def get_invoice():
         pass
-
-
-    # TODO: move to somewhere else
-    # def notify(self, status: OrderStatus):
-    #     #current order status
-    #     if self.order_status == OrderStatus.Placed:
-    #         if status == OrderStatus.CONFIRMED:
-    #             # Iterate product orders
-    #             # Decrement all product quantities by product order quantity
-    #             for item in self.products:
-    #                 item.product.QoH -= item.quantity
-    #             db.session.add_all(self.products)
-    #             db.session.commit()       
-
 
 
 
@@ -50,8 +36,7 @@ class Order(db.Model):
             "item_count": self.item_count,
             "order_total": round(self.order_total, 2),
             "date_placed": self.date_placed.strftime("%a, %d %b, %Y"),
+            "date_completed": self.date_completed,
             "order_status": self.order_status,
-            "pickup_status": self.pickup_status,
-            # TODO: Test
-            "products": serializeList(map(lambda productOrder: productOrder.product, self.products))
+            "products": serializeList(list(map(lambda productOrder: productOrder.product, self.products)))
         }
