@@ -1,4 +1,4 @@
-from .database import db
+from App.database import db
 from App.models.enums import UserRole
 from App.modules.auth_module import getPasswordHash
 

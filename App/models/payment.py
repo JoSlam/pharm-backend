@@ -1,4 +1,4 @@
-from .database import db
+from App.database import db
 from datetime import datetime
 from App.models.enums import PaymentType
 

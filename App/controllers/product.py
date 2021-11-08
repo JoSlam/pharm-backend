@@ -2,7 +2,7 @@ from flask import request
 
 from App import parse
 from App.models import Product
-from App.models.database import db
+from App.database import db
 from App.modules.serialization_module import serializeList
 
 # creates a new product for /create-product endpoint

@@ -1,5 +1,5 @@
 from App.models import (User)
-from App.models.database import db
+from App.database import db
 from App.models.enums import UserRole
 from App.modules.serialization_module import serializeList
 

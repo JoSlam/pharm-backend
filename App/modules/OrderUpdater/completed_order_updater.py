@@ -1,5 +1,5 @@
 from datetime import datetime
-from App.models.database import db
+from App.database import db
 from App.models.payment import Payment
 from .order_updater import OrderUpdater
 

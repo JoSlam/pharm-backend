@@ -7,7 +7,7 @@ from flask_jwt_extended import JWTManager
 
 import pyrebase
 
-from App.models.database import *
+from App.database import *
 
 
 from App import CONFIG

@@ -1,4 +1,4 @@
-from App.models.database import db
+from App.database import db
 
 class OrderUpdater():
 

@@ -1,4 +1,4 @@
-from .database import db
+from App.database import db
 from functools import reduce
 from datetime import datetime
 

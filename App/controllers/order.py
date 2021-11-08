@@ -5,7 +5,7 @@ from App.controllers.product import get_product_by_slug
 from App.controllers.user import get_user_by_email
 
 from App.models import (Order)
-from App.models.database import db
+from App.database import db
 from App.models.enums import OrderStatus
 from App.models.productOrder import ProductOrder
 
