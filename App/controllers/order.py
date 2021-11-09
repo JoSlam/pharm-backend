@@ -10,7 +10,7 @@ from App.models.enums import OrderStatus
 from App.models.productOrder import ProductOrder
 
 from App.modules.serialization_module import serializeList
-from App.modules.OrderUpdater.order_updater_factory import GetOrderUpdater
+from App.modules.OrderUpdater.order_updater_factory import GetOrderUpdater, OrderUpdaterFactory
 
 
 order_bp = Blueprint('order_views', __name__,
@@ -59,7 +59,8 @@ def progress_order():
         order_status = request.json.get("order_status")
 
         order = get_order_by_id(order_id)
-        order_updater = GetOrderUpdater(order_status, request)
+        order_updater_factory = OrderUpdaterFactory(request)
+        order_updater = order_updater_factory.getUpdater(order_status)
 
         order_updater.update(order)
         return "Order updated", 200
