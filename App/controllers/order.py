@@ -10,7 +10,7 @@ from App.models.enums import OrderStatus
 from App.models.productOrder import ProductOrder
 
 from App.modules.serialization_module import serializeList
-from App.modules.OrderUpdater.order_updater_factory import GetOrderUpdater, OrderUpdaterFactory
+from App.modules.OrderUpdater.order_updater_factory import OrderUpdaterFactory
 
 
 order_bp = Blueprint('order_views', __name__,
