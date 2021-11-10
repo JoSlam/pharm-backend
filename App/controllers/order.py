@@ -63,7 +63,7 @@ def progress_order():
         order_updater = order_updater_factory.getUpdater(order_status)
 
         order_updater.update(order)
-        return "Order updated", 200
+        return  jsonify(order.toDict())
     except Exception as e:
         print(e)
         return f"Unable to update order {order_id}", 500
