@@ -13,7 +13,6 @@ class Product(db.Model):
     total_retail_price = db.Column(db.Float(decimal_return_scale=2), nullable=False)
     image = db.Column(db.String(300), nullable=True)
     orders = db.relationship("ProductOrder", back_populates="product")
-    slug = db.Column()
     
     def setPrice(self, price):
         self.unit_retail_price = price

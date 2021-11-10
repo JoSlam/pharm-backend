@@ -4,7 +4,7 @@ from flask_jwt_extended import create_access_token
 
 # from App.models import User
 
-# This module contains the loging for all authentication operations in the app
+# This module contains the logic for all authentication operations in the app
 
 
 def getUserAccessToken(email):
